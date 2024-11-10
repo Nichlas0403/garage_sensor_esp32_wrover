@@ -5,6 +5,7 @@
 #include <WiFi.h>
 #include <ArduinoJson.h>
 #include "GpioService.h"
+#include "SmartHomeService.h"
 
 //GPIOs
 #define _dht11Input 32 //DHT11 Input
@@ -14,6 +15,7 @@
 // Cores services
 AsyncWebServer _server(80);
 GpioService _gpioService(_photoresistorInput, _photoresistorOutput, _dht11Input);
+SmartHomeService _smarthomeService;
 
 
 //Endpoints
@@ -23,7 +25,7 @@ void ToggleOff(AsyncWebServerRequest *request);
 
 //WIFI 
 String ssid = "SSID";
-String wifiPassword = "PASSWORD";
+String wifiPassword = "password";
 
 unsigned long previousMillis = 0;
 const long interval = 10000; // Check every 10 seconds
@@ -38,7 +40,7 @@ void setup()
   Serial.begin(9600);
 
   ConnectToWiFi(ssid, wifiPassword);
-
+  _smarthomeService.UpdateIpAddress(WiFi.localIP().toString());
 }
 
 void loop() 
@@ -55,7 +57,6 @@ void loop()
     {
       Serial.println("Reconnecting succeeded!");
     } 
-
   }
 }
 
