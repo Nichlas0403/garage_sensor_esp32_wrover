@@ -25,10 +25,11 @@ void ToggleOff(AsyncWebServerRequest *request);
 
 //WIFI 
 String ssid = "SSID";
-String wifiPassword = "password";
+String wifiPassword = "PASSWORD";
 
 unsigned long previousMillis = 0;
 const long interval = 10000; // Check every 10 seconds
+bool smarthomeUpdated = false;
 
 //Server setup
 void RestServerRouting();
@@ -40,23 +41,49 @@ void setup()
   Serial.begin(9600);
 
   ConnectToWiFi(ssid, wifiPassword);
-  _smarthomeService.UpdateIpAddress(WiFi.localIP().toString());
+  smarthomeUpdated = _smarthomeService.UpdateIpAddress(WiFi.localIP().toString());
 }
 
 void loop() 
 {
   unsigned long currentMillis = millis();
   
+  if(!smarthomeUpdated)
+  {
+    smarthomeUpdated = _smarthomeService.UpdateIpAddress(WiFi.localIP().toString());
+  }
+
   // Check Wi-Fi status periodically
-  if ((currentMillis - previousMillis >= interval) && WiFi.status() != WL_CONNECTED) {
+  if ((currentMillis - previousMillis >= interval) && WiFi.status() != WL_CONNECTED) 
+  {
+    smarthomeUpdated = false;
+
     Serial.println("WiFi disconnected, attempting to reconnect...");
     previousMillis = currentMillis;  // Reset the timer
-    WiFi.disconnect();   // Force a disconnect
 
-    if(WiFi.reconnect())
+    // Only attempt to reconnect if not already reconnecting
+    if (!WiFi.isConnected()) 
     {
-      Serial.println("Reconnecting succeeded!");
+      WiFi.reconnect(); // Let the ESP32 handle reconnection automatically
+      
+      // Wait until connected, with a timeout
+      unsigned long startAttemptTime = millis();
+      while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) 
+      {
+        delay(500); // Small delay to allow for network stability
+        Serial.println("Waiting for WiFi to reconnect...");
+      }
+    }
+
+    // Check if reconnection was successful
+    if (WiFi.status() == WL_CONNECTED) 
+    {
+      Serial.println("Reconnected to WiFi successfully!");
     } 
+    else 
+    {
+      Serial.println("Failed to reconnect to WiFi.");
+    }
   }
 }
 

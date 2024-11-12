@@ -9,7 +9,7 @@ class SmartHomeService
 {
     public:
         SmartHomeService();
-        void UpdateIpAddress(String ipAddress);
+        bool UpdateIpAddress(String ipAddress);
 
     private:
         HTTPClient _client;
