@@ -24,8 +24,8 @@ void ToggleOn(AsyncWebServerRequest *request);
 void ToggleOff(AsyncWebServerRequest *request);
 
 //WIFI 
-String ssid = "SSID";
-String wifiPassword = "PASSWORD";
+String ssid = "ssid";
+String wifiPassword = "password";
 
 unsigned long previousMillis = 0;
 const long interval = 10000; // Check every 10 seconds
@@ -175,6 +175,10 @@ void ConnectToWiFi(String ssid, String password)
 {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
+  WiFi.setHostname("garage_central_sensor");
+
+  Serial.println("Connecting to:");
+  Serial.println(ssid);
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);

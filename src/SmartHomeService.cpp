@@ -16,7 +16,7 @@ bool SmartHomeService::UpdateIpAddress(String ipAddress)
     _client.begin(_wifiClient, url);  // Begin HTTPClient with WiFiClient and the URL
 
     // Authorization header
-    String authHeader = "Bearer someToken";
+    String authHeader = "Bearer myToken";
     _client.addHeader("Authorization", authHeader);
     _client.addHeader("Content-Type", "application/json");
 
